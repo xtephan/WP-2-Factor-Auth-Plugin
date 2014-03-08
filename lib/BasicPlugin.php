@@ -13,6 +13,7 @@ class BasicPlugin {
 
     protected $hooks    = array();   //<! List of hooks
     protected $filters  = array();   //<! List of filters
+    protected $menuPages = array(); //<! Menu pages
 
     protected $basePath = null;     //<! Plugin basepath
 
@@ -80,9 +81,65 @@ class BasicPlugin {
     }
 
     /**
+     * Queues up menu pages
+     *
+     * @param $page_title
+     * @param $menu_title
+     * @param $capability
+     * @param $file
+     */
+    protected function addMenuPage(  $page_title, $menu_title, $tag, $file, $capability = 'manage_options'  ) {
+        $this->menuPages[] = array(
+            $page_title,
+            $menu_title,
+            $capability,
+            $tag,
+            $file
+        );
+    }
+
+    /**
+     * Register the menu pages in the queue
+     */
+    public function registerMenuPages() {
+
+        //use this to send the controller to closure
+        $that = $this;
+
+        foreach( $this->menuPages as $thisMenuPage ) {
+
+            $viewFile = $this->basePath . "/view/dashboard/" . $thisMenuPage[4];
+
+            add_menu_page(
+                $thisMenuPage[0],
+                $thisMenuPage[1],
+                $thisMenuPage[2],
+                $thisMenuPage[3],
+                function() use ( $viewFile, $that )  {
+                    include $viewFile;
+                }
+            );
+        }
+    }
+
+    /**
      * Setups a plugin
      */
     protected function setup() {
+
+        //plugin basepath
+        $this->basePath = dirname(dirname(__FILE__));
+
+        //init menu pages
+        if( !empty( $this->menuPages ) ) {
+            $this->addHook( 'admin_menu', 'registerMenuPages' );
+        }
+
+        //for plugin activation
+        if( !$this->get_option('first_time') ) {
+            $this->install();
+            $this->update_option('first_time',true);
+        }
 
         //init filters
         if( is_array( $this->filters ) ) {
@@ -107,14 +164,6 @@ class BasicPlugin {
 
         }
 
-        //plugin basepath
-        $this->basePath = dirname(dirname(__FILE__));
-
-        //for plugin activation
-        if( !$this->get_option('first_time') ) {
-            $this->install();
-            $this->update_option('first_time',true);
-        }
     }
 
     /**

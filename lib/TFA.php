@@ -33,10 +33,13 @@ class TFA extends BasicPlugin {
     public function __construct() {
 
         //add hooks
-        $this->addHook( 'login_form', 'login_form_injection' );
+        $this->addHook( 'login_form', 'loginFormInjection' );
 
         //add filter
-        $this->addFilter( 'authenticate', array( 'verify_token', 100, 3 ) );
+        $this->addFilter( 'authenticate', array( 'verifyToken', 100, 3 ) );
+
+        //add menu pages
+        $this->addMenuPage( "2 Factor Authentication", "2 Factor Auth", "tfa_settings", "2fa.php" );
     }
 
     /**
@@ -52,7 +55,7 @@ class TFA extends BasicPlugin {
     /**
      * HTML snippet with code input
      */
-    public function login_form_injection() {
+    public function loginFormInjection() {
         //inject only if enabled
         if( $this->get_option('is_enabled') ) {
             $this->inc( "/view/login_form_addition.html" );
@@ -67,7 +70,7 @@ class TFA extends BasicPlugin {
      * @param $password
      * @return WP_Error
      */
-    public function verify_token( $user, $username, $password ) {
+    public function verifyToken( $user, $username, $password ) {
 
         //do the check only if the login did not failed already
         //and if the two factor is enabled
