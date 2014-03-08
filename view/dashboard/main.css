@@ -1,0 +1,24 @@
+#setting-form {
+    width: 40%;
+    float: left;
+}
+
+#setting-secret {
+    width: 60%;
+    float: right;
+}
+
+#secret-key {
+    display: none;
+}
+
+hr#separator{
+    width: 150px;
+    margin-left: 0;
+}
+
+#visible_key {
+    font-size: 20px;
+    font-size: 1.4rem;
+    margin-top: 0px;
+}

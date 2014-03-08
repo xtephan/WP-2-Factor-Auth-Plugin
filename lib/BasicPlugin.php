@@ -16,6 +16,7 @@ class BasicPlugin {
     protected $menuPages = array(); //<! Menu pages
 
     protected $basePath = null;     //<! Plugin basepath
+    protected $baseUrl = null;      //<! Plugin base url
 
     /**
      * Singleton implementation
@@ -120,6 +121,30 @@ class BasicPlugin {
                 }
             );
         }
+
+        //load css and js scripts
+        if( file_exists($this->basePath . "/view/dashboard/main.css") ) {
+            wp_register_style( $this->prefix . 'css_main.css', $this->baseUrl . "/view/dashboard/main.css" );
+        }
+
+        if( file_exists($this->basePath . "/view/dashboard/main.js") ) {
+            wp_register_script( $this->prefix . 'js_main.js', $this->baseUrl . "/view/dashboard/main.js", array('jquery') );
+        }
+    }
+
+    /**
+     * Load dashboardCSS
+     */
+    public function loadCSS() {
+        wp_enqueue_style( $this->prefix . 'css_main.css' );
+    }
+
+    /**
+     * Load dashboardJS
+     */
+    public function loadJS() {
+        wp_enqueue_script('jquery');
+        wp_enqueue_script( $this->prefix . 'js_main.js' );
     }
 
     /**
@@ -127,8 +152,9 @@ class BasicPlugin {
      */
     protected function setup() {
 
-        //plugin basepath
+        //plugin basepath and base url
         $this->basePath = dirname(dirname(__FILE__));
+        $this->baseUrl = dirname(plugin_dir_url(__FILE__));
 
         //init menu pages
         if( !empty( $this->menuPages ) ) {

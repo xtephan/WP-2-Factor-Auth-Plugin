@@ -91,6 +91,24 @@ class TFA extends BasicPlugin {
 
     }
 
+    /**
+     * Return a link to the secret key as QR Code
+     *
+     * @return string
+     */
+    public function getQRCode() {
+        $urlencoded = urlencode( 'otpauth://totp/' . get_bloginfo('name') . '?secret=' . $this->get_option('secret_key') );
+        return 'https://chart.googleapis.com/chart?chs=250x250&chld=M|0&cht=qr&chl='.$urlencoded.'';
+    }
+
+    /**
+     * Create and save new secret
+     */
+    public function generateNewSecret() {
+        $this->loadDependencies();
+        $this->update_option('secret_key', Authenticator::createSecret() );
+    }
+
     /*
      * Load class dependencies for the auth algorithm
      *
