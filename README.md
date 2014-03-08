@@ -3,6 +3,11 @@ WP Two Factor Authentication
 
 Two factor authentication for Wordpress.
 
+Demo
+----
+Check put the [demo page](http://2fwp.unserialized.dk)! ( Comming soon :) )
+
+
 Usage
 -----
 
