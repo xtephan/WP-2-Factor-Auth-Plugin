@@ -1,84 +1,16 @@
 <?php
 /**
-* Google Authenticator library
-* @author Stefan Fodor (stefan@unserialized.dk)
-* Based on the algorithm some PHP snippets I've seen somewhere
-*/
-class GoogleAuthenticator {
-	
-	/**
-	* Check if the token is valid
-	* @param string $secret
-	* @param string $token
-	* @param int $deltaTime
-	*/
-	public static function validateToken( $secret, $token, $deltaTime = 1 ) {
-        
-		$timeSpan = floor(time() / 30);
-		$tokenSize = strlen($token);
-		
-        for ($i = -$deltaTime; $i <= $deltaTime; $i++) {
-		
-			//var_dump(self::getToken($secret, $tokenSize, $timeSpan + $i));
-			
-			//If token generated in the timespan is equal witht he one given
-            if ( self::getToken($secret, $tokenSize, $timeSpan + $i) == $token ) {
-				//everything is OK
-				return true;
-            }
-        }
-
-        return false;
-	}
-	
-	/**
-	* Gets a token for a given point in time
-	*/
-	private static function getToken( $secret, $tokenSize = 6, $timeSpan = null ) {
-	
-	    if ($timeSpan === null) {
-            $timeSpan = floor(time() / 30);
-        }
-
-        $secretkey = self::base32Decode($secret);
-
-        // Binary voodoo
-        $time = chr(0).chr(0).chr(0).chr(0).pack('N*', $timeSpan);
-        $hm = hash_hmac('SHA1', $time, $secretkey, true);
-        $offset = ord(substr($hm, -1)) & 0x0F;
-        $hashpart = substr($hm, $offset, 4);
-        $value = unpack('N', $hashpart);
-        $value = $value[1];
-        $value = $value & 0x7FFFFFFF;
-
-		//and voila
-        $modulo = pow(10, $tokenSize);
-        return str_pad($value % $modulo, $tokenSize, '0', STR_PAD_LEFT);
-	}
-	
-	/**
-     * Create new secret.
-     */
-    public static function createSecret( $secretLength = 16 ) {
-	
-        $validChars = self::getBase32LookupTable();
-        unset($validChars[32]);
-
-        $secret = '';
-        for ($i = 0; $i < $secretLength; $i++) {
-            $secret .= $validChars[array_rand($validChars)];
-        }
-		
-        return $secret;
-    }
-	
-	/**
+ * Base32 Class
+ * @author Stefan Fodor (stefan@unserialized.dk)
+ */
+class Base32 {
+    /**
      * Decode base 32
      */
-    protected static function base32Decode( $secret ) {
-	
-        if (empty($secret)) 
-			return '';
+    public static function base32Decode( $secret ) {
+
+        if (empty($secret))
+            return '';
 
         $base32chars = self::getBase32LookupTable();
         $base32charsFlipped = array_flip($base32chars);
@@ -93,7 +25,7 @@ class GoogleAuthenticator {
         $secret = str_replace('=','', $secret);
         $secret = str_split($secret);
         $binaryString = "";
-		
+
         for ($i = 0; $i < count($secret); $i = $i+8) {
             $x = "";
             if (!in_array($secret[$i], $base32chars)) return false;
@@ -111,10 +43,10 @@ class GoogleAuthenticator {
     /**
      * Encode to base 32
      */
-    protected static function base32Encode($secret, $padding = true) {
-	
-        if (empty($secret)) 
-			return '';
+    public static function base32Encode($secret, $padding = true) {
+
+        if (empty($secret))
+            return '';
 
         $base32chars = self::getBase32LookupTable();
 
@@ -142,7 +74,7 @@ class GoogleAuthenticator {
     /**
      * Static list of the 32 chars
      */
-    protected static function getBase32LookupTable() {
+    public static function getBase32LookupTable() {
         return array(
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
@@ -151,5 +83,4 @@ class GoogleAuthenticator {
             '='  // padding char
         );
     }
-	
 }
