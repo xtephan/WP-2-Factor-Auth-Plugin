@@ -97,7 +97,7 @@ class TFA extends BasicPlugin {
      * @return string
      */
     public function getQRCode() {
-        $urlencoded = urlencode( 'otpauth://totp/' . get_bloginfo('name') . '?secret=' . $this->get_option('secret_key') );
+        $urlencoded = urlencode( 'otpauth://totp/' . $_SERVER["SERVER_NAME"] . '?secret=' . $this->get_option('secret_key') );
         return 'https://chart.googleapis.com/chart?chs=250x250&chld=M|0&cht=qr&chl='.$urlencoded.'';
     }
 
